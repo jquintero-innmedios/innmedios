@@ -1,5 +1,6 @@
 backend:
-  name: git-gateway
+  name: github
+  repo: jquintero-innmedios/innmedios
   branch: main
 
 media_folder: fotos
@@ -17,7 +18,7 @@ collections:
       - { label: Título, name: titulo, widget: string }
       - { label: Categoría, name: categoria, widget: select, options: [Documental, Cultura, Innovación, Territorio, Comunicación, Producción] }
       - { label: Fecha, name: fecha, widget: datetime, format: DD MMM YYYY, date_format: DD MMM YYYY, time_format: false }
-      - { label: Tiempo de lectura (minutos), name: lectura, widget: number, default: 3 }
+      - { label: Tiempo de lectura, name: lectura, widget: number, default: 3 }
       - { label: Imagen de portada, name: imagen, widget: image }
       - { label: Resumen, name: resumen, widget: text }
       - { label: Contenido, name: body, widget: markdown }
