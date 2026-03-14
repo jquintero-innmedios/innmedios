@@ -434,6 +434,9 @@ fetch('https://api.github.com/repos/jquintero-innmedios/innmedios/contents/blog/
           const card = document.createElement('div');
           card.className = `blog-card ${classes[i]}`;
           card.style.transitionDelay = (i * 0.15) + 's';
+          const slug = files[i].name.replace('.md','');
+          card.style.cursor = 'pointer';
+          card.onclick = () => location.href = `/blog/post.html?slug=${slug}`;
           card.innerHTML = `
             <div class="bc-img">
               <img src="${meta.imagen || ''}" alt="${meta.titulo || ''}">
@@ -442,7 +445,7 @@ fetch('https://api.github.com/repos/jquintero-innmedios/innmedios/contents/blog/
               <div class="bc-cat">${meta.categoria || ''}</div>
               <div class="bc-title">${meta.titulo || ''}</div>
               <div class="bc-meta">${meta.fecha || ''} · ${meta.lectura || '5'} min lectura</div>
-              <a href="#" class="bc-read">Leer</a>
+              <a href="/blog/post.html?slug=${slug}" class="bc-read">Leer</a>
             </div>`;
           grid.appendChild(card);
           observer.observe(card);
