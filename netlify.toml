@@ -1,0 +1,12 @@
+[[redirects]]
+  from = "/"
+  to = "/innmedios-landing.html"
+  status = 200
+
+[[redirects]]
+  from = "/contacto"
+  to = "/innmedios-landing.html?enviado=true"
+  status = 200
+
+[build]
+  publish = "."
