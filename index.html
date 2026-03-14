@@ -412,31 +412,44 @@ document.querySelectorAll('.sg-item').forEach((item, i) => {
 });
 
 // Cargar artículos del blog desde JSON generado por el CMS
-fetch('/blog/posts.json')
+// Cargar artículos del blog desde el CMS
+fetch('https://api.github.com/repos/jquintero-innmedios/innmedios/contents/blog/posts')
   .then(r => r.json())
-  .then(posts => {
+  .then(files => {
     const grid = document.getElementById('blog-grid');
-    const recientes = posts.slice(0, 3);
-    recientes.forEach((post, i) => {
-      const card = document.createElement('div');
-      card.className = 'blog-card ' + (i === 0 ? 'reveal-left' : i === 1 ? 'reveal' : 'reveal-right');
-      card.style.transitionDelay = (i * 0.15) + 's';
-      card.innerHTML = `
-        <div class="bc-img">
-          <img src="${post.imagen || 'fotos/blog-placeholder.jpg'}" alt="${post.titulo}">
-        </div>
-        <div class="bc-body">
-          <div class="bc-cat">${post.categoria}</div>
-          <div class="bc-title">${post.titulo}</div>
-          <div class="bc-meta">${post.fecha} · ${post.lectura} min lectura</div>
-          <a href="/blog/${post.slug}" class="bc-read">Leer</a>
-        </div>`;
-      grid.appendChild(card);
-      observer.observe(card);
-    });
+    const posts = files.filter(f => f.name.endsWith('.md')).slice(0, 3);
+    Promise.all(posts.map(f => fetch(f.download_url).then(r => r.text())))
+      .then(contents => {
+        grid.innerHTML = '';
+        contents.forEach((content, i) => {
+          const meta = {};
+          const frontmatter = content.match(/---\n([\s\S]*?)\n---/);
+          if (frontmatter) {
+            frontmatter[1].split('\n').forEach(line => {
+              const [key, ...val] = line.split(':');
+              if (key) meta[key.trim()] = val.join(':').trim().replace(/^"|"$/g, '');
+            });
+          }
+          const classes = ['reveal-left', 'reveal', 'reveal-right'];
+          const card = document.createElement('div');
+          card.className = `blog-card ${classes[i]}`;
+          card.style.transitionDelay = (i * 0.15) + 's';
+          card.innerHTML = `
+            <div class="bc-img">
+              <img src="${meta.imagen || ''}" alt="${meta.titulo || ''}">
+            </div>
+            <div class="bc-body">
+              <div class="bc-cat">${meta.categoria || ''}</div>
+              <div class="bc-title">${meta.titulo || ''}</div>
+              <div class="bc-meta">${meta.fecha || ''} · ${meta.lectura || '5'} min lectura</div>
+              <a href="#" class="bc-read">Leer</a>
+            </div>`;
+          grid.appendChild(card);
+          observer.observe(card);
+        });
+      });
   })
   .catch(() => {
-    // Si no hay CMS aún, muestra artículos de ejemplo
     const grid = document.getElementById('blog-grid');
     grid.innerHTML = `
       <div class="blog-card reveal-left">
@@ -447,29 +460,7 @@ fetch('/blog/posts.json')
           <div class="bc-meta">12 mar 2025 · 5 min lectura</div>
           <a href="#" class="bc-read">Leer</a>
         </div>
-      </div>
-      <div class="blog-card reveal">
-        <div class="bc-img"><img src="fotos/blog2.jpg" alt="Post 2"></div>
-        <div class="bc-body">
-          <div class="bc-cat">Cultura</div>
-          <div class="bc-title">Córdoba lo tiene todo: el programa que nació del territorio</div>
-          <div class="bc-meta">5 mar 2025 · 3 min lectura</div>
-          <a href="#" class="bc-read">Leer</a>
-        </div>
-      </div>
-      <div class="blog-card reveal-right">
-        <div class="bc-img"><img src="fotos/blog3.jpg" alt="Post 3"></div>
-        <div class="bc-body">
-          <div class="bc-cat">Innovación</div>
-          <div class="bc-title">IA y narrativa audiovisual: el futuro de la producción</div>
-          <div class="bc-meta">28 feb 2025 · 4 min lectura</div>
-          <a href="#" class="bc-read">Leer</a>
-        </div>
       </div>`;
-    document.querySelectorAll('.blog-card').forEach((card, i) => {
-      card.style.transitionDelay = (i * 0.15) + 's';
-      observer.observe(card);
-    });
   });
 
 // Confirmar envío del formulario
